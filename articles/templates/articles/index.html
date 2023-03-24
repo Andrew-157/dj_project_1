@@ -4,20 +4,5 @@
     {% load crispy_forms_tags %}
     <div class="container py-5">
         <h1>Welcome to the Articlee</h1>
-        {% if user.is_authenticated %}
-            <p>You are authenticated as <strong>{{ user }}</strong></p>
-        {% endif %}
-        {% if user.is_authenticated %}
-            <a href="">Publish new article here</a>
-            <br />
-            <a href="">You personal page</a>
-            <br />
-            <a href="{% url 'articles:change-user' %}">Change your profile here</a>
-            <br>
-            <a href="{% url 'articles:logout' %}">Log Out</a>
-        {% else %}
-            <a href="{% url 'articles:register' %}">Register</a><br />
-            <a href="{% url 'articles:login' %}">Log In</a><br />
-        {% endif %}
     </div>
 {% endblock %}

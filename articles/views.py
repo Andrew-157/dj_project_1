@@ -45,7 +45,7 @@ class LoginUser(View):
             user = authenticate(username=username, password=password)
             if user:
                 login(request, user)
-                messages.info(
+                messages.success(
                     request, f"Welcome back to the Articlee, {username}")
                 return redirect('articles:index')
         return render(request, self.template_name, {'form': form})
@@ -53,13 +53,13 @@ class LoginUser(View):
 
 def logout_request(request):
     logout(request)
-    messages.info(request, "You have successfully logged out.")
+    messages.success(request, "You have successfully logged out.")
     return redirect('articles:index')
 
 
-class ChangeUser(View):
+class ChangeProfile(View):
     form_class = ChangeCustomUserForm
-    template_name = 'articles/change_user.html'
+    template_name = 'articles/change_profile.html'
 
     def get(self, request):
         current_user = request.user
@@ -74,7 +74,7 @@ class ChangeUser(View):
             user = form.save()
             login(request, user)
             username = form.cleaned_data['username']
-            messages.info(request, f'Welcome to the Articlee, {username}')
+            messages.success(request, f'Welcome to the Articlee, {username}')
             return redirect('articles:index')
 
         return render(request, self.template_name, {'form': form})
