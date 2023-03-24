@@ -23,7 +23,7 @@ class RegisterUser(View):
             user = form.save()
             login(request, user)
             username = form.cleaned_data['username']
-            messages.info(request, f'Welcome to the Articlee, {username}')
+            messages.success(request, f'Welcome to the Articlee, {username}')
             return redirect('articles:index')
 
         return render(request, self.template_name, {'form': form})
