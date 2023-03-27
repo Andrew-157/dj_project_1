@@ -19,3 +19,10 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(
+        CustomUser, related_name='subscriber', on_delete=models.CASCADE)
+    subscribe_to = models.ForeignKey(
+        CustomUser, related_name='publisher', on_delete=models.CASCADE)
