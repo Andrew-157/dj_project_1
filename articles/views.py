@@ -41,14 +41,14 @@ def password_reset_request(request):
                                   'admin@gmail.com', [user.email], fail_silently=False)
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
-                    return redirect("password_reset_done")
+                    return redirect("/password_reset/done/")
+            messages.error(request, 'An invalid email has been entered.')
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="articles/password/password_reset.html", context={"password_reset_form": password_reset_form})
 
 
 class RegisterUser(View):
     form_class = CustomUserForm
-
     template_name = 'articles/register.html'
 
     def get(self, request):
