@@ -1,0 +1,13 @@
+{% extends "articles/header.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="container py-5">
+        <h1>Publish Your article</h1>
+        <form action="{% url 'articles:publish-article' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </form>
+    </div>
+{% endblock %}

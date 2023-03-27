@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import CustomUserForm, ChangeCustomUserForm
+from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm
 from .models import CustomUser
 
 
@@ -60,8 +60,7 @@ class RegisterUser(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            username = form.cleaned_data['username']
-            messages.success(request, f'Welcome to the Articlee, {username}')
+            messages.success(request, f'Welcome to the Articlee')
             return redirect('articles:index')
 
         return render(request, self.template_name, {'form': form})
@@ -84,7 +83,7 @@ class LoginUser(View):
             if user:
                 login(request, user)
                 messages.success(
-                    request, f"Welcome back to the Articlee, {username}")
+                    request, f"Welcome back to the Articlee")
                 return redirect('articles:index')
         return render(request, self.template_name, {'form': form})
 
@@ -111,9 +110,28 @@ class ChangeProfile(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            username = form.cleaned_data['username']
             messages.success(
-                request, f'Your account was successfully changed, {username}')
+                request, f'Your account was successfully changed')
             return redirect('articles:index')
 
         return render(request, self.template_name, {'form': form})
+
+
+class PublishArticle(View):
+    form_class = PublishArticleForm
+    template_name = 'articles/publish_article.html'
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            form.instance.author = request.user
+            obj.save()
+            form.save_m2m()
+            messages.success(request, 'You successfully published new article')
+            return redirect('articles:index')
+        return render(request, 'articles/publish_article.html', {'form': form})
