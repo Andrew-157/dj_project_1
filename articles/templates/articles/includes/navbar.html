@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">Navbar</a>
+  <a class="navbar-brand" href="{% url 'articles:index' %}">Articlee</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="False" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -14,7 +14,7 @@
         <a class="nav-link" href="#">Welcome, {{ user }}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'articles:change-profile' %}">Change your profile</a>
+        <a class="nav-link" href="{% url 'articles:change-user' %}">Change your profile</a>
       </li>
 
       {% else %}

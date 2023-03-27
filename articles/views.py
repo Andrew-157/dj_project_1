@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import BadHeaderError, send_mail
 from django.template.loader import render_to_string
@@ -94,7 +96,7 @@ def logout_request(request):
     return redirect('articles:index')
 
 
-class ChangeProfile(View):
+class ChangeUser(View):
     form_class = ChangeCustomUserForm
     template_name = 'articles/change_profile.html'
 
@@ -116,6 +118,10 @@ class ChangeProfile(View):
 
         return render(request, self.template_name, {'form': form})
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
 
 class PublishArticle(View):
     form_class = PublishArticleForm
@@ -135,3 +141,7 @@ class PublishArticle(View):
             messages.success(request, 'You successfully published new article')
             return redirect('articles:index')
         return render(request, 'articles/publish_article.html', {'form': form})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
