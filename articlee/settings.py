@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'crispy_forms',
     'crispy_bootstrap4',
+    'taggit',
     'django_cleanup.apps.CleanupConfig',
     'articles'
 ]
@@ -159,3 +160,5 @@ MESSAGE_TAGS = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+TAGGIT_CASE_INSENSITIVE = True

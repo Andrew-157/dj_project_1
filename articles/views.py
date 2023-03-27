@@ -112,7 +112,8 @@ class ChangeProfile(View):
             user = form.save()
             login(request, user)
             username = form.cleaned_data['username']
-            messages.success(request, f'Welcome to the Articlee, {username}')
+            messages.success(
+                request, f'Your account was successfully changed, {username}')
             return redirect('articles:index')
 
         return render(request, self.template_name, {'form': form})
