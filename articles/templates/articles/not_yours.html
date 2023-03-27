@@ -10,18 +10,14 @@
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
         crossorigin="anonymous"
       />
-    <title>Become User</title>
+    <title>Not Yours</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{% url 'articles:index' %}">Articlee</a>
     </nav>
     <div class="container py-5"> 
-        <h1>Oops, you cannot visit this url,while you are not authenticated</h1>
-        <p>Visit one of the following links:</p>
-        <a href="{% url 'articles:login' %}">Login</a><br>
-        <a href="{% url 'articles:register' %}">Register</a><br>
-        <a href="{% url 'articles:password-reset' %}">Forgot password?</a>
+        <h1>THIS PAGE DOES NOT BELONG TO YOU</h1>
     </div>
 </body>
 </html>

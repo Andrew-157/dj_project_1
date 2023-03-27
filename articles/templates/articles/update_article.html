@@ -1,0 +1,14 @@
+{% extends "articles/header.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="container py-5">
+        <h1>Update Your article</h1>
+        <p>This article was published <strong>--{{ article.pub_date }}--</strong></p>
+        <form action="{% url 'articles:update-article' article.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Update</button>
+        </form>
+    </div>
+{% endblock %}

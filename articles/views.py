@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm
-from .models import CustomUser
+from .models import CustomUser, Article
 
 
 def password_reset_request(request):
@@ -145,3 +145,27 @@ class PublishArticle(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+def update_article(request, article_id):
+    current_user = request.user
+    article = Article.objects.filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    if article.author != current_user:
+        return render(request, 'articles/not_yours.html')
+    if request.method == 'POST':
+        form = PublishArticleForm(request.POST,
+                                  request.FILES,
+                                  instance=article)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            form.instance.author = request.user
+            obj.save()
+            form.save_m2m()
+            messages.success(
+                request, 'You successfully updated your article')
+            return redirect('articles:index')
+    else:
+        form = PublishArticleForm(instance=article)
+        return render(request, 'articles/update_article.html', {'form': form, 'article': article})
