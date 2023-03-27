@@ -147,6 +147,7 @@ class PublishArticle(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+@login_required()
 def update_article(request, article_id):
     current_user = request.user
     article = Article.objects.filter(pk=article_id).first()
