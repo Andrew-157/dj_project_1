@@ -26,3 +26,20 @@ class Subscription(models.Model):
         CustomUser, related_name='subscriber', on_delete=models.CASCADE)
     subscribe_to = models.ForeignKey(
         CustomUser, related_name='publisher', on_delete=models.CASCADE)
+
+
+class Comment(models.Model):
+    commentator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    content = models.TextField(null=False)
+    is_author = models.BooleanField(default=False)
+    pub_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.content
+
+
+class Reaction(models.Model):
+    value = models.SmallIntegerField()
+    reaction_owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
