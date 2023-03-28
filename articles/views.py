@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm
+from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
 from .models import CustomUser, Article, Reaction
 
 
@@ -206,21 +206,21 @@ def public_article(request, article_id):
 
 def like_article(request, article_id):
     current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(request, 'To leave a reaction, please, sign in')
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
     article = Article.objects.filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
     # when this view redirects you back to the public page of the article
     # this does not count as article was read one more time
     # so article.times_read becomes bigger only
     # when you hit public-article url
     article.times_read -= 1
     article.save()
-    if not article:
-        return render(request, 'articles/nonexistent.html')
     # here login_required decorator is not applied
     # because we want user to return to the public page of the article
     # with message that they need to be authenticated to leave a reaction
-    if not current_user.is_authenticated:
-        messages.info(request, 'To leave a reaction, please, sign in')
-        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
     reaction = Reaction.objects.filter(
         Q(article=article)
         &
@@ -244,14 +244,14 @@ def dislike_article(request, article_id):
     # this view is basically the same as like_article
     # but with the opposite values
     current_user = request.user
-    article = Article.objects.filter(pk=article_id).first()
-    article.times_read -= 1
-    article.save()
-    if not article:
-        return render(request, 'articles/nonexistent.html')
     if not current_user.is_authenticated:
         messages.info(request, 'To leave a reaction, please, sign in')
         return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    article = Article.objects.filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    article.times_read -= 1
+    article.save()
     reaction = Reaction.objects.filter(
         Q(article=article)
         &
@@ -269,3 +269,27 @@ def dislike_article(request, article_id):
             reaction.delete()
 
     return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+
+
+def comment_article(request, article_id):
+    current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(request, 'To leave a comment, please, sign in')
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    article = Article.objects.filter(pk=article_id).\
+        select_related('author').first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    if request.method == 'POST':
+        article.times_read -= 1
+        article.save()
+        form = CommentArticleForm(request.POST)
+        if form.is_valid():
+            form.instance.commentator = current_user
+            form.instance.article = article
+            if article.author == current_user:
+                form.instance.is_author = True
+            form.save()
+            return HttpResponseRedirect(reverse('articles:public-article', args=(article_id, )))
+    form = CommentArticleForm()
+    return render(request, 'articles/comment_article.html', {'form': form, 'article': article})

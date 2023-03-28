@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Article
+from .models import CustomUser, Article, Comment
 
 
 class CustomUserForm(UserCreationForm):
@@ -24,3 +24,10 @@ class PublishArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         exclude = ['author', 'pub_date', 'times_read']
+
+
+class CommentArticleForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = ['content']

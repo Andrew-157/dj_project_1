@@ -27,7 +27,9 @@ public = [
     path('public/<int:article_id>/like/',
          views.like_article, name='like-article'),
     path('public/<int:article_id>/dislike/',
-         views.dislike_article, name='dislike-article')
+         views.dislike_article, name='dislike-article'),
+    path('public/<int:article_id>/comment/',
+         views.comment_article, name='comment-article'),
 ]
 
 urlpatterns = urlpatterns\
