@@ -115,7 +115,6 @@ class ChangeUser(View):
             messages.success(
                 request, f'Your account was successfully changed')
             return redirect('articles:index')
-
         return render(request, self.template_name, {'form': form})
 
     @method_decorator(login_required)
@@ -167,6 +166,5 @@ def update_article(request, article_id):
             messages.success(
                 request, 'You successfully updated your article')
             return redirect('articles:index')
-    else:
-        form = PublishArticleForm(instance=article)
-        return render(request, 'articles/update_article.html', {'form': form, 'article': article})
+    form = PublishArticleForm(instance=article)
+    return render(request, 'articles/update_article.html', {'form': form, 'article': article})
