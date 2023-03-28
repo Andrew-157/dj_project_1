@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
-from .models import CustomUser, Article, Reaction
+from .models import CustomUser, Article, Reaction, Comment
 
 
 def password_reset_request(request):
@@ -176,6 +176,7 @@ def public_article(request, article_id):
     user_reaction_message = None
     likes = 0
     dislikes = 0
+    comments = None
     article = Article.objects.select_related('author').\
         prefetch_related('tags').\
         filter(pk=article_id).first()
@@ -198,10 +199,15 @@ def public_article(request, article_id):
     if article_reactions:
         likes = article_reactions.filter(value=1).count()
         dislikes = article_reactions.filter(value=-1).count()
+    article_comments = Comment.objects.filter(
+        article=article).select_related('commentator').all()
+    if article_comments:
+        comments = article_comments
     return render(request, 'articles/public_article.html', {'article': article,
                                                             'user_reaction_message': user_reaction_message,
                                                             'likes': likes,
-                                                            'dislikes': dislikes})
+                                                            'dislikes': dislikes,
+                                                            'comments': comments})
 
 
 def like_article(request, article_id):

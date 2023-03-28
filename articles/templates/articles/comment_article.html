@@ -7,7 +7,7 @@
         <form action="{% url 'articles:comment-article' article.id%}" method="post">
         {% csrf_token %} 
         {{ form|crispy }}
-        <button class="btn btn-primary" type="submit">Submit changes</button>
+        <button class="btn btn-primary" type="submit">Comment</button>
       </form>
     </div>
 {% endblock %}

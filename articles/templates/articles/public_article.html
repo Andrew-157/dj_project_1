@@ -25,5 +25,20 @@
           <button class="btn btn-primary" type="submit">Dislike</button>
         </form>
         <a href="{% url 'articles:comment-article' article.id %}">Leave your comment</a>
+        <p>--- Comment section ---</p>
+        {% if comments %}
+          {% for comment in comments%}
+            <div class="container py-5">
+              <img src="{{ comment.commentator.user_image.url}}" alt="User's image" style="width: 10%; float: left; margin-right: 10px;">
+              <p>Comment: {{ comment.content }}</p>
+              <p>Left by {{ comment.commentator }} {{ comment.pub_date }}</p>
+              {% if comment.is_author %}
+                <p><strong>author</strong></p>
+              {% endif %}
+            </div>
+          {% endfor %} 
+        {% else %}
+          <p>No comments left yet</p>
+        {% endif %}
     </div>
 {% endblock %}
