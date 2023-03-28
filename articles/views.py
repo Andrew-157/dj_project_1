@@ -12,10 +12,11 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.decorators import method_decorator
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm
-from .models import CustomUser, Article
+from .models import CustomUser, Article, Reaction
 
 
 def password_reset_request(request):
@@ -98,7 +99,7 @@ def logout_request(request):
 
 class ChangeUser(View):
     form_class = ChangeCustomUserForm
-    template_name = 'articles/change_profile.html'
+    template_name = 'articles/change_user.html'
 
     def get(self, request):
         current_user = request.user
@@ -168,3 +169,103 @@ def update_article(request, article_id):
             return redirect('articles:index')
     form = PublishArticleForm(instance=article)
     return render(request, 'articles/update_article.html', {'form': form, 'article': article})
+
+
+def public_article(request, article_id):
+    current_user = request.user
+    user_reaction_message = None
+    likes = 0
+    dislikes = 0
+    article = Article.objects.select_related('author').\
+        prefetch_related('tags').\
+        filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    if current_user.is_authenticated:
+        article.times_read += 1
+        article.save()
+    user_reaction = Reaction.objects.filter(
+        Q(article=article)
+        &
+        Q(reaction_owner=current_user)
+    ).first()
+    if user_reaction:
+        if user_reaction.value == -1:
+            user_reaction_message = 'You disliked this article'
+        if user_reaction.value == 1:
+            user_reaction_message = 'You liked this article'
+    article_reactions = Reaction.objects.filter(article=article).all()
+    if article_reactions:
+        likes = article_reactions.filter(value=1).count()
+        dislikes = article_reactions.filter(value=-1).count()
+    return render(request, 'articles/public_article.html', {'article': article,
+                                                            'user_reaction_message': user_reaction_message,
+                                                            'likes': likes,
+                                                            'dislikes': dislikes})
+
+
+def like_article(request, article_id):
+    current_user = request.user
+    article = Article.objects.filter(pk=article_id).first()
+    # when this view redirects you back to the public page of the article
+    # this does not count as article was read one more time
+    # so article.times_read becomes bigger only
+    # when you hit public-article url
+    article.times_read -= 1
+    article.save()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    # here login_required decorator is not applied
+    # because we want user to return to the public page of the article
+    # with message that they need to be authenticated to leave a reaction
+    if not current_user.is_authenticated:
+        messages.info(request, 'To leave a reaction, please, sign in')
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    reaction = Reaction.objects.filter(
+        Q(article=article)
+        &
+        Q(reaction_owner=current_user)
+    ).first()
+    if not reaction:
+        reaction = Reaction(
+            value=1, reaction_owner=current_user, article=article)
+        reaction.save()
+    else:
+        if reaction.value == -1:
+            reaction.value = 1
+            reaction.save()
+        elif reaction.value == 1:
+            reaction.delete()
+
+    return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+
+
+def dislike_article(request, article_id):
+    # this view is basically the same as like_article
+    # but with the opposite values
+    current_user = request.user
+    article = Article.objects.filter(pk=article_id).first()
+    article.times_read -= 1
+    article.save()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    if not current_user.is_authenticated:
+        messages.info(request, 'To leave a reaction, please, sign in')
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    reaction = Reaction.objects.filter(
+        Q(article=article)
+        &
+        Q(reaction_owner=current_user)
+    ).first()
+    if not reaction:
+        reaction = Reaction(
+            value=-1, reaction_owner=current_user, article=article)
+        reaction.save()
+    else:
+        if reaction.value == 1:
+            reaction.value = -1
+            reaction.save()
+        elif reaction.value == -1:
+            reaction.delete()
+
+    return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))

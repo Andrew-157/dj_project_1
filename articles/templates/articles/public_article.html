@@ -1,0 +1,28 @@
+{% extends "articles/header.html" %}
+
+{% block content%}
+    <div class="container py-5">
+        <img src="{{ article.image.url }}" alt="Article image" style="width: 30%; float: right; margin-right: 30px;">
+        <h2>Title: {{ article.title }}</h2>
+        <p>Was published by <a href="">{{ article.author }}</a></p>
+        <p>Published: {{ article.pub_date }}</p>
+        <p>Was read {{ article.times_read }} times</p>
+        {% for tag in article.tags.all %}
+            <a href="">#{{ tag }}</a>
+        {% endfor %}
+        <p><strong>Content:</strong></p>
+        <p> {{ article.content }} </p>
+        {% if user_reaction_message %}
+            <p><strong>{{ user_reaction_message }}</strong></p>
+        {% endif %}
+        <p>{{ likes }} likes | {{ dislikes }} dislikes</p>
+        <form action="{% url 'articles:like-article' article.id %}">
+          {% csrf_token %}
+          <button class="btn btn-primary" type="submit">Like</button>
+        </form>
+        <form action="{% url 'articles:dislike-article' article.id %}">
+          {% csrf_token %}
+          <button class="btn btn-primary" type="submit">Dislike</button>
+        </form>
+    </div>
+{% endblock %}
