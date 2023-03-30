@@ -324,9 +324,12 @@ def author_page(request, author):
     current_user = request.user
     subscription_status = None
     total_readings = None
+    is_owner = False
     author_object = CustomUser.objects.filter(username=author).first()
     if not author_object:
         return render(request, 'articles/nonexistent.html')
+    if current_user == author_object:
+        is_owner = True
     articles = Article.objects.\
         select_related('author').\
         prefetch_related('tags').\
@@ -342,12 +345,17 @@ def author_page(request, author):
         subscription_status = 'Unsubscribe'
     else:
         subscription_status = 'Subscribe'
+    subscribers = Subscription.objects.filter(
+        subscribe_to=author_object).count()
     if articles:
         total_readings = sum(articles.values_list('times_read', flat=True))
     return render(request, 'articles/author_page.html', {'author': author_object,
                                                          'articles': articles,
                                                          'total_readings': total_readings,
-                                                         'subscription_status': subscription_status})
+                                                         'subscription_status': subscription_status,
+                                                         'subscribers': subscribers,
+                                                         'number_of_articles': len(articles),
+                                                         'is_owner': is_owner})
 
 
 def subscribe_request(request, author):
