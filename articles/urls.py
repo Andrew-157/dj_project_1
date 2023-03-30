@@ -21,17 +21,22 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
 personal = [path('publish_article/', views.PublishArticle.as_view(), name='publish-article'),
             path('update_article/<int:article_id>',
                  views.update_article, name='update-article'),
-            path('personal_page/', views.personal_page, name='personal-page')]
+            ]
 
 public = [
-    path('public/<int:article_id>/', views.public_article, name='public-article'),
-    path('public/<int:article_id>/like/',
+    path('public/articles/<int:article_id>/',
+         views.public_article, name='public-article'),
+    path('public/articles/<int:article_id>/like/',
          views.like_article, name='like-article'),
-    path('public/<int:article_id>/dislike/',
+    path('public/articles/<int:article_id>/dislike/',
          views.dislike_article, name='dislike-article'),
-    path('public/<int:article_id>/comment/',
+    path('public/articles/<int:article_id>/comment/',
          views.comment_article, name='comment-article'),
-    path('public/<str:tag>/', views.find_articles_through_tag, name='tag-article')
+    path('public/tags/<str:tag>/',
+         views.find_articles_through_tag, name='tag-article'),
+    path('public/authors/<str:author>/', views.author_page, name='author-page'),
+    path('public/authors/<str:author>/subscribe/',
+         views.subscribe_request, name='subscribe')
 ]
 
 urlpatterns = urlpatterns\

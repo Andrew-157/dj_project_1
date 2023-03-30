@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from taggit.models import Tag
 from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
-from .models import CustomUser, Article, Reaction, Comment
+from .models import CustomUser, Article, Reaction, Comment, Subscription
 
 
 def password_reset_request(request):
@@ -222,7 +222,7 @@ def like_article(request, article_id):
         return render(request, 'articles/nonexistent.html')
     # when this view redirects you back to the public page of the article
     # this does not count as article was read one more time
-    # so article.times_read becomes bigger only
+    # so article.times_read increases
     # when you hit public-article url
     article.times_read -= 1
     article.save()
@@ -318,3 +318,38 @@ def find_articles_through_tag(request, tag):
         message_to_display = f'{number_of_articles} articles were found'
     return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                              'articles': articles})
+
+
+def author_page(request, author):
+    current_user = request.user
+    author_object = CustomUser.objects.filter(username=author).first()
+    if not author_object:
+        return render(request, 'articles/nonexistent.html')
+    return render(request, 'articles/author_page.html', {'author': author})
+
+
+def subscribe_request(request, author):
+    current_user = request.user
+    author_object = CustomUser.objects.filter(username=author).first()
+    if not author_object:
+        return render(request, 'articles/nonexistent.html')
+    if current_user == author_object:
+        messages.info(request, 'You cannot subscribe to yourself')
+        return HttpResponseRedirect(reverse('articles:author-page', args=(author,)))
+    subscription = Subscription.objects.filter(
+        Q(subscriber=current_user) &
+        Q(subscribe_to=author_object)
+    ).first()
+    if not subscription:
+        subscription = Subscription(
+            subscriber=current_user,
+            subscribe_to=author_object
+        )
+        subscription.save()
+        messages.success(request, 'You successfully subscribed to this author')
+        return HttpResponseRedirect(reverse('articles:author-page', args=(author, )))
+    else:
+        subscription.delete()
+        messages.success(
+            request, 'You successfully unsubscribe from this author')
+        return HttpResponseRedirect(reverse('articles:author-page', args=(author, )))

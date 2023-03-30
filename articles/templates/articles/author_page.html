@@ -1,0 +1,10 @@
+{% extends "articles/header.html" %}
+
+{% block content %}
+    <div class="container py-5">
+        <form action="{% url 'articles:subscribe' author %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Subscribe</button>
+        </form>
+    </div>
+{% endblock %}
