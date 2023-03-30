@@ -18,9 +18,10 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
                            name='change-user'),
                       path('password_reset/', views.password_reset_request, name='password-reset'),]
 
-private = [path('publish_article/', views.PublishArticle.as_view(), name='publish-article'),
-           path('update_article/<int:article_id>',
-                views.update_article, name='update-article'),]
+personal = [path('publish_article/', views.PublishArticle.as_view(), name='publish-article'),
+            path('update_article/<int:article_id>',
+                 views.update_article, name='update-article'),
+            path('personal_page/', views.personal_page, name='personal-page')]
 
 public = [
     path('public/<int:article_id>/', views.public_article, name='public-article'),
@@ -30,9 +31,10 @@ public = [
          views.dislike_article, name='dislike-article'),
     path('public/<int:article_id>/comment/',
          views.comment_article, name='comment-article'),
+    path('public/<str:tag>/', views.find_articles_through_tag, name='tag-article')
 ]
 
 urlpatterns = urlpatterns\
     + user_manipulations\
-    + private\
+    + personal\
     + public

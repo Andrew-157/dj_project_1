@@ -1,3 +1,5 @@
+from django.db.models import Sum
+from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.utils.decorators import method_decorator
@@ -5,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import BadHeaderError, send_mail
 from django.template.loader import render_to_string
-from django.db.models.query_utils import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import PasswordResetForm
 from django.utils.http import urlsafe_base64_encode
@@ -15,6 +16,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
+from taggit.models import Tag
 from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
 from .models import CustomUser, Article, Reaction, Comment
 
@@ -299,3 +301,20 @@ def comment_article(request, article_id):
             return HttpResponseRedirect(reverse('articles:public-article', args=(article_id, )))
     form = CommentArticleForm()
     return render(request, 'articles/comment_article.html', {'form': form, 'article': article})
+
+
+def find_articles_through_tag(request, tag):
+    tag_object = Tag.objects.filter(name=tag).first()
+    if not tag_object:
+        return render(request, 'articles/nonexistent.html')
+    articles = Article.objects.prefetch_related('tags').\
+        filter(tags=tag_object).order_by('-times_read').all()
+    number_of_articles = len(articles)
+    if number_of_articles < 0:
+        message_to_display = 'No articles were found'
+    if number_of_articles == 1:
+        message_to_display = 'One article was found'
+    if number_of_articles > 1:
+        message_to_display = f'{number_of_articles} articles were found'
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})
