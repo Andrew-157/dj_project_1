@@ -4,7 +4,7 @@
     <div class="container py-5">
         <img src="{{ article.image.url }}" alt="Article image" style="width: 30%; float: right; margin-right: 30px;">
         <h2>Title: {{ article.title }}</h2>
-        <p>Was published by <a href="">{{ article.author }}</a></p>
+        <p>Was published by <a href="{% url 'articles:author-page' article.author %}">{{ article.author }}</a></p>
         <p>Published: {{ article.pub_date }}</p>
         <p>Was read {{ article.times_read }} times</p>
         {% for tag in article.tags.all %}
@@ -29,11 +29,13 @@
         {% if comments %}
           {% for comment in comments%}
             <div class="container py-5">
-              <img src="{{ comment.commentator.user_image.url}}" alt="User's image" style="width: 10%; float: left; margin-right: 10px;">
-              <p>Comment: {{ comment.content }}</p>
-              <p>Left by {{ comment.commentator }} {{ comment.pub_date }}</p>
+              <img src="{{ comment.commentator.user_image.url}}" alt="User's image" style="width: 5%; float: left; margin-right: 10px;">
+              <p>Comment:</p>
+              <p>{{ comment.content }}</p>
               {% if comment.is_author %}
-                <p><strong>author</strong></p>
+                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date }}</p>
+              {% else %}
+                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date }}</p>
               {% endif %}
             </div>
           {% endfor %} 

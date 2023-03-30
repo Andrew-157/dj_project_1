@@ -322,14 +322,40 @@ def find_articles_through_tag(request, tag):
 
 def author_page(request, author):
     current_user = request.user
+    subscription_status = None
+    total_readings = None
     author_object = CustomUser.objects.filter(username=author).first()
     if not author_object:
         return render(request, 'articles/nonexistent.html')
-    return render(request, 'articles/author_page.html', {'author': author})
+    articles = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').\
+        filter(author=author_object).all()
+    subscription = Subscription.objects.filter(
+        Q(subscriber=current_user) &
+        Q(subscribe_to=author_object)
+    ).first()
+    # this subscription status is shown
+    # as button, so if user is subscribed
+    # they see unsubscribe button and vice versa
+    if subscription:
+        subscription_status = 'Unsubscribe'
+    else:
+        subscription_status = 'Subscribe'
+    if articles:
+        total_readings = sum(articles.values_list('times_read', flat=True))
+    return render(request, 'articles/author_page.html', {'author': author_object,
+                                                         'articles': articles,
+                                                         'total_readings': total_readings,
+                                                         'subscription_status': subscription_status})
 
 
 def subscribe_request(request, author):
     current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(
+            request, 'To subscribe you need to be an authenticated user')
+        return HttpResponseRedirect(reverse('articles:author-page', args=(author,)))
     author_object = CustomUser.objects.filter(username=author).first()
     if not author_object:
         return render(request, 'articles/nonexistent.html')

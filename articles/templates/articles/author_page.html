@@ -2,9 +2,32 @@
 
 {% block content %}
     <div class="container py-5">
+        <h1><a href="{% url 'articles:author-page' author %}">{{ author }}</a></h1>
+        <img src="{{ author.user_image.url }}" alt="Author's image" style="width: 10%; float: right; margin-right: 10px;">
         <form action="{% url 'articles:subscribe' author %}">
             {% csrf_token %}
-            <button class="btn btn-primary" type="submit">Subscribe</button>
+            <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
         </form>
+    </div>
+    <div class="container py-5">
+        {% if articles %}
+            <h2>Totally <a href="">{{ author }}</a>'s articles were read <strong>{{ total_readings}}</strong> times</h2>
+            <h2>---Articles---</h2>
+            {% for article in articles %}
+                <h2>Title: {{ article.title }}</h2>
+                <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
+                {% for tag in article.tags.all %}
+                    <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
+                {% endfor %}
+                <p>Was read <strong>{{ article.times_read }}</strong> times</p>
+                <p>Was published <strong>{{ article.pub_date }}</strong></p>
+                <form action="{% url 'articles:public-article' article.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit">Read</button>
+                </form>
+            {% endfor %}
+        {% else %}
+            <h2><a href="">{{ author }}</a> has not published any articles yet</h2>
+        {% endif %}
     </div>
 {% endblock %}
