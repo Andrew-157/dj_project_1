@@ -3,6 +3,35 @@
 {% block content %}
     <div class="container py-5">
         <h1>Welcome to your page, <a href="{% url 'articles:personal-page' %}">{{ current_user }}</a></h1>
-        
+        <img src="{{ current_user.user_image.url }}" alt="User's image" style="width: 10%; float: right; margin-right: 10px;">
+        <h2>{{ subscribers }} readers are subscribed to you</h2>
     </div>
+    {% if articles %}
+    <div class="container py-5">
+        <h2>---Articles---</h2>
+        <h2>You totally published {{ number_of_articles }} articles</h2>
+        <h2>Your articles were totally read <strong>{{ total_readings }}</strong> times</h2>
+        <a href="{% url 'articles:publish-article' %}">Publish new article here</a>
+    </div>
+    {% for article in articles %}
+        <div class="container py-5">
+            <h2>Title: {{ article.title }}</h2>
+            <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
+            {% for tag in article.tags.all %}
+                <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
+            {% endfor %}
+            <p>Was read <strong>{{ article.times_read }}</strong> times</p>
+            <form action="{% url 'articles:public-article' article.id %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Read</button>
+            </form>
+            <a href="{% url 'articles:update-article' article.id %}">Edit this article</a>
+            <p>Click this button if you want to delete this article</p>
+            <form action="{% url 'articles:delete-article' article.id %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Delete</button>
+            </form>
+        </div>
+    {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -352,6 +352,7 @@ def author_page(request, author):
     articles = Article.objects.\
         select_related('author').\
         prefetch_related('tags').\
+        order_by('pub_date').\
         filter(author=author_object).all()
     if articles:
         total_readings = sum(articles.values_list('times_read', flat=True))
@@ -383,7 +384,9 @@ def personal_page(request):
     articles = Article.objects.\
         select_related('author').\
         prefetch_related('tags').\
-        filter(author=current_user).all()
+        order_by('pub_date').\
+        filter(author=current_user).\
+        all()
     if articles:
         total_readings = sum(articles.values_list('times_read', flat=True))
     subscribers = Subscription.objects.filter(
@@ -391,7 +394,8 @@ def personal_page(request):
     return render(request, 'articles/personal_page.html', {'current_user': current_user,
                                                            'articles': articles,
                                                            'total_readings': total_readings,
-                                                           'subscribers': subscribers})
+                                                           'subscribers': subscribers,
+                                                           'number_of_articles': len(articles), })
 
 
 def subscribe_request(request, author):
