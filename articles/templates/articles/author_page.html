@@ -7,7 +7,7 @@
         {% else %}
             <h1><a href="{% url 'articles:author-page' author %}">{{ author }}</a></h1>
             <img src="{{ author.user_image.url }}" alt="Author's image" style="width: 10%; float: right; margin-right: 10px;">
-            <h2>{{ subscribers }} people are subscribed to this author</h2>
+            <h2>{{ subscribers }} readers are subscribed to this author</h2>
             <form action="{% url 'articles:subscribe' author %}">
                 {% csrf_token %}
                 <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>

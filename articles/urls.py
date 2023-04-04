@@ -18,10 +18,15 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
                            name='change-user'),
                       path('password_reset/', views.password_reset_request, name='password-reset'),]
 
-personal = [path('publish_article/', views.PublishArticle.as_view(), name='publish-article'),
-            path('update_article/<int:article_id>',
-                 views.update_article, name='update-article'),
-            ]
+personal = [
+    path('personal/', views.personal_page, name='personal-page'),
+    path('personal/publish/',
+         views.PublishArticle.as_view(), name='publish-article'),
+    path('personal/update/<int:article_id>/',
+         views.update_article, name='update-article'),
+    path('personal/delete/<int:article_id>/',
+         views.delete_article, name='delete-article')
+]
 
 public = [
     path('public/articles/<int:article_id>/',

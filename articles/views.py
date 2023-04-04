@@ -152,7 +152,10 @@ class PublishArticle(View):
 @login_required()
 def update_article(request, article_id):
     current_user = request.user
-    article = Article.objects.filter(pk=article_id).first()
+    article = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').\
+        filter(pk=article_id).first()
     if not article:
         return render(request, 'articles/nonexistent.html')
     if article.author != current_user:
@@ -171,6 +174,22 @@ def update_article(request, article_id):
             return redirect('articles:index')
     form = PublishArticleForm(instance=article)
     return render(request, 'articles/update_article.html', {'form': form, 'article': article})
+
+
+@login_required()
+def delete_article(request, article_id):
+    current_user = request.user
+    article = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').\
+        filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    if article.author != current_user:
+        return render(request, 'articles/not_yours.html')
+    article.delete()
+    messages.success(request, 'Your article was successfully deleted')
+    return HttpResponseRedirect(reverse('articles:personal-page'))
 
 
 def public_article(request, article_id):
@@ -334,6 +353,8 @@ def author_page(request, author):
         select_related('author').\
         prefetch_related('tags').\
         filter(author=author_object).all()
+    if articles:
+        total_readings = sum(articles.values_list('times_read', flat=True))
     subscription = Subscription.objects.filter(
         Q(subscriber=current_user) &
         Q(subscribe_to=author_object)
@@ -347,8 +368,6 @@ def author_page(request, author):
         subscription_status = 'Subscribe'
     subscribers = Subscription.objects.filter(
         subscribe_to=author_object).count()
-    if articles:
-        total_readings = sum(articles.values_list('times_read', flat=True))
     return render(request, 'articles/author_page.html', {'author': author_object,
                                                          'articles': articles,
                                                          'total_readings': total_readings,
@@ -356,6 +375,23 @@ def author_page(request, author):
                                                          'subscribers': subscribers,
                                                          'number_of_articles': len(articles),
                                                          'is_owner': is_owner})
+
+
+def personal_page(request):
+    current_user = request.user
+    total_readings = None
+    articles = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').\
+        filter(author=current_user).all()
+    if articles:
+        total_readings = sum(articles.values_list('times_read', flat=True))
+    subscribers = Subscription.objects.filter(
+        subscribe_to=current_user).count()
+    return render(request, 'articles/personal_page.html', {'current_user': current_user,
+                                                           'articles': articles,
+                                                           'total_readings': total_readings,
+                                                           'subscribers': subscribers})
 
 
 def subscribe_request(request, author):
