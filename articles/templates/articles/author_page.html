@@ -4,17 +4,26 @@
     <div class="container py-5">
         {% if is_owner%}
             <h1>This page is about your articles</h1>
-        {% else %}
-            <h1><a href="{% url 'articles:author-page' author %}">{{ author }}</a></h1>
-            <img src="{{ author.user_image.url }}" alt="Author's image" style="width: 10%; float: right; margin-right: 10px;">
-            <h2>{{ subscribers }} readers are subscribed to this author</h2>
-            <form action="{% url 'articles:subscribe' author %}">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
-            </form>
+            <p>Follow <a href="{% url 'articles:persoanl-page' %}">this link</a> to visit your personal page</p>
         {% endif %}
+        <h2><a href="{% url 'articles:author-page' author %}">{{ author }}</a></h2>
+        <img src="{{ author.user_image.url }}" alt="Author's image" style="width: 10%; float: right; margin-right: 10px;">
+        {% if subscribers == 1 %}
+            <h2>1 reader is subscribed to this author</h2>
+        {% else %}
+            <h2>{{ subscribers }} readers are subscribed to this author </h2>
+        {% endif %}
+        <form action="{% url 'articles:subscribe' author %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
+        </form>
     </div>
-    {% if articles %}
+    {% if not articles %}
+        <div class="container py-5">
+            <h2>---Articles---</h2>
+            <h2>This author has not published any articles yet</h2>
+        </div>
+    {% else %}
         <div class="container py-5">
             <h2>---Articles---</h2>
             <h2><a href="{% url 'articles:author-page' author %}">{{ author }}</a> totally published {{ number_of_articles }} articles</h2>
@@ -34,10 +43,7 @@
                     <button class="btn btn-primary" type="submit">Read</button>
                 </form>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="container py-5">
-            <h2><a href="">{{ author }}</a> has not published any articles yet</h2>
-        </div>
+        {% endfor%}
     {% endif %}
+
 {% endblock %}

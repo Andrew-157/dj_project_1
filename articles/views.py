@@ -171,7 +171,7 @@ def update_article(request, article_id):
             form.save_m2m()
             messages.success(
                 request, 'You successfully updated your article')
-            return redirect('articles:index')
+            return redirect('articles:personal-page')
     form = PublishArticleForm(instance=article)
     return render(request, 'articles/update_article.html', {'form': form, 'article': article})
 
@@ -189,7 +189,7 @@ def delete_article(request, article_id):
         return render(request, 'articles/not_yours.html')
     article.delete()
     messages.success(request, 'Your article was successfully deleted')
-    return HttpResponseRedirect(reverse('articles:personal-page'))
+    return redirect('articles:personal-page')
 
 
 def public_article(request, article_id):
@@ -206,16 +206,16 @@ def public_article(request, article_id):
     if current_user.is_authenticated:
         article.times_read += 1
         article.save()
-    user_reaction = Reaction.objects.filter(
-        Q(article=article)
-        &
-        Q(reaction_owner=current_user)
-    ).first()
-    if user_reaction:
-        if user_reaction.value == -1:
-            user_reaction_message = 'You disliked this article'
-        if user_reaction.value == 1:
-            user_reaction_message = 'You liked this article'
+        user_reaction = Reaction.objects.filter(
+            Q(article=article)
+            &
+            Q(reaction_owner=current_user)
+        ).first()
+        if user_reaction:
+            if user_reaction.value == -1:
+                user_reaction_message = 'You disliked this article'
+            if user_reaction.value == 1:
+                user_reaction_message = 'You liked this article'
     article_reactions = Reaction.objects.filter(article=article).all()
     if article_reactions:
         likes = article_reactions.filter(value=1).count()
@@ -330,18 +330,18 @@ def find_articles_through_tag(request, tag):
         filter(tags=tag_object).order_by('-times_read').all()
     number_of_articles = len(articles)
     if number_of_articles < 0:
-        message_to_display = 'No articles were found'
+        message_to_display = 'No articles were found with this tag'
     if number_of_articles == 1:
-        message_to_display = 'One article was found'
+        message_to_display = 'One article was found with this tag'
     if number_of_articles > 1:
-        message_to_display = f'{number_of_articles} articles were found'
+        message_to_display = f'{number_of_articles} articles were found with this tag'
     return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                              'articles': articles})
 
 
 def author_page(request, author):
     current_user = request.user
-    subscription_status = None
+    subscription_status = 'Subscribe'
     total_readings = None
     is_owner = False
     author_object = CustomUser.objects.filter(username=author).first()
@@ -352,50 +352,54 @@ def author_page(request, author):
     articles = Article.objects.\
         select_related('author').\
         prefetch_related('tags').\
-        order_by('pub_date').\
+        order_by('-pub_date').\
         filter(author=author_object).all()
     if articles:
         total_readings = sum(articles.values_list('times_read', flat=True))
-    subscription = Subscription.objects.filter(
-        Q(subscriber=current_user) &
-        Q(subscribe_to=author_object)
-    ).first()
-    # this subscription status is shown
-    # as button, so if user is subscribed
-    # they see unsubscribe button and vice versa
-    if subscription:
-        subscription_status = 'Unsubscribe'
-    else:
-        subscription_status = 'Subscribe'
+    if current_user.is_authenticated:
+        subscription = Subscription.objects.filter(
+            Q(subscriber=current_user) &
+            Q(subscribe_to=author_object)
+        ).first()
+        # this subscription status is shown
+        # as button, so if user is subscribed
+        # they see unsubscribe button and vice versa
+        if subscription:
+            subscription_status = 'Unsubscribe'
+        else:
+            subscription_status = 'Subscribe'
     subscribers = Subscription.objects.filter(
         subscribe_to=author_object).count()
     return render(request, 'articles/author_page.html', {'author': author_object,
                                                          'articles': articles,
                                                          'total_readings': total_readings,
-                                                         'subscription_status': subscription_status,
-                                                         'subscribers': subscribers,
                                                          'number_of_articles': len(articles),
+                                                         'subscribers': subscribers,
+                                                         'subscription_status': subscription_status,
                                                          'is_owner': is_owner})
 
 
+@login_required()
 def personal_page(request):
     current_user = request.user
     total_readings = None
     articles = Article.objects.\
         select_related('author').\
         prefetch_related('tags').\
-        order_by('pub_date').\
+        order_by('-pub_date').\
         filter(author=current_user).\
         all()
     if articles:
         total_readings = sum(articles.values_list('times_read', flat=True))
+    number_of_articles = len(articles)
     subscribers = Subscription.objects.filter(
         subscribe_to=current_user).count()
+
     return render(request, 'articles/personal_page.html', {'current_user': current_user,
                                                            'articles': articles,
                                                            'total_readings': total_readings,
-                                                           'subscribers': subscribers,
-                                                           'number_of_articles': len(articles), })
+                                                           'number_of_articles': number_of_articles,
+                                                           'subscribers': subscribers})
 
 
 def subscribe_request(request, author):
