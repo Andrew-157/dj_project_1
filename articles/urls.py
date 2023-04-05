@@ -42,7 +42,7 @@ public = [
     path('public/authors/<str:author>/', views.author_page, name='author-page'),
     path('public/authors/<str:author>/subscribe/',
          views.subscribe_request, name='subscribe'),
-    path('public/search/', views.search, name='search')
+    path('public/search/', views.search_articles, name='search-articles')
 ]
 
 urlpatterns = urlpatterns\

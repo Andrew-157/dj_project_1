@@ -435,6 +435,28 @@ def subscribe_request(request, author):
         return HttpResponseRedirect(reverse('articles:author-page', args=(author, )))
 
 
-def search(request):
+def search_articles(request):
     search_string = request.POST['search_string']
-    return HttpResponse(search_string)
+    if search_string[0] == '#':
+        tag = search_string[1:].lower()
+        return HttpResponseRedirect(reverse('articles:tag-article', args=(tag, )))
+    articles = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').\
+        filter(Q(title__icontains=search_string) |
+               Q(author__username__icontains=search_string)).\
+        order_by('-times_read').\
+        all()
+    number_of_articles = len(articles)
+    if number_of_articles == 0:
+        message_to_display = f"No articles were found that contain ---{search_string}--- \
+            in author's name or title"
+    elif number_of_articles == 1:
+        message_to_display = f"1 article was found that contains ---{search_string}--- \
+            in author's name or title"
+    else:
+        message_to_display = f"{number_of_articles} articles were found that contain ---{search_string}---\
+            in author's name or title"
+
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})
