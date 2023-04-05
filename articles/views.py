@@ -438,7 +438,7 @@ def subscribe_request(request, author):
 def search_articles(request):
     search_string = request.POST['search_string']
     if search_string[0] == '#':
-        tag = search_string[1:].lower()
+        tag = search_string[1:]
         return HttpResponseRedirect(reverse('articles:tag-article', args=(tag, )))
     articles = Article.objects.\
         select_related('author').\
