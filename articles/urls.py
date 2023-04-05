@@ -27,7 +27,9 @@ personal = [
     path('personal/articles/<int:article_id>/delete/',
          views.delete_article, name='delete-article'),
     path('personal/social_media/add/',
-         views.AddSocialMediaLink.as_view(), name='add-social-media')
+         views.AddSocialMediaLink.as_view(), name='add-social-media'),
+    path('personal/social_media/<int:social_media_id>/delete/',
+         views.delete_social_media, name='delete-social-media')
 ]
 
 public = [

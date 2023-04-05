@@ -10,6 +10,18 @@
             <h2>{{ subscribers }} readers are subscribed to you </h2>
         {% endif %}
     </div>
+    <div class="container py-5">
+        {% if not social_media %}
+            <a href="{% url 'articles:add-social-media' %}">Let users follow you on different social media</a>
+        {% else %}
+            <h2>Your social media you shared:</h2>
+            {% for sm in social_media %}
+                <a href="{{sm.link}}">{{ sm.social_media_title }}</a>
+                <p>Click <a href="{% url 'articles:delete-social-media' sm.id %}">here</a> to delete the link</p>
+            {% endfor %}
+            <a href="{% url 'articles:add-social-media' %}">Add more if you want</a>   
+        {% endif %}
+    </div>
     {% if not articles %}
         <div class="container py-5">
             <h2>---Articles---</h2>

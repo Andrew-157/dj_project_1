@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from taggit.models import Tag
 from .forms import SocialMediaForm, CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
-from .models import CustomUser, Article, Reaction, Comment, Subscription
+from .models import CustomUser, Article, Reaction, Comment, Subscription, SocialMedia
 
 
 def password_reset_request(request):
@@ -65,10 +65,28 @@ class AddSocialMediaLink(View):
         if form.is_valid():
             form.instance.user = request.user
             form.save()
-            messages.info(
+            messages.success(
                 request, 'You successfully added new link to your social media')
             return redirect('articles:personal-page')
         return render(request, self.template_name, {'form': form})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+@login_required()
+def delete_social_media(request, social_media_id):
+    current_user = request.user
+    social_media = SocialMedia.objects.\
+        select_related('user').\
+        filter(pk=social_media_id).first()
+    if not social_media:
+        return render(request, 'articles/nonexistent.html')
+    if social_media.user != current_user:
+        return render(request, 'articles/not_yours.html')
+    social_media.delete()
+    return redirect('articles:personal-page')
 
 
 class RegisterUser(View):
@@ -318,6 +336,9 @@ def dislike_article(request, article_id):
 
 
 def comment_article(request, article_id):
+    # here login_required decorator is not applied
+    # because we want user to return to the public page of the article
+    # with message that they need to be authenticated to leave a comment
     current_user = request.user
     if not current_user.is_authenticated:
         messages.info(request, 'To leave a comment, please, sign in')
@@ -391,13 +412,15 @@ def author_page(request, author):
             subscription_status = 'Subscribe'
     subscribers = Subscription.objects.filter(
         subscribe_to=author_object).count()
+    social_media = SocialMedia.objects.filter(user=author_object).all()
     return render(request, 'articles/author_page.html', {'author': author_object,
                                                          'articles': articles,
                                                          'total_readings': total_readings,
                                                          'number_of_articles': len(articles),
                                                          'subscribers': subscribers,
                                                          'subscription_status': subscription_status,
-                                                         'is_owner': is_owner})
+                                                         'is_owner': is_owner,
+                                                         'social_media': social_media})
 
 
 @login_required()
@@ -415,12 +438,15 @@ def personal_page(request):
     number_of_articles = len(articles)
     subscribers = Subscription.objects.filter(
         subscribe_to=current_user).count()
+    social_media = SocialMedia.objects.\
+        filter(user=current_user).all()
 
     return render(request, 'articles/personal_page.html', {'current_user': current_user,
                                                            'articles': articles,
                                                            'total_readings': total_readings,
                                                            'number_of_articles': number_of_articles,
-                                                           'subscribers': subscribers})
+                                                           'subscribers': subscribers,
+                                                           'social_media': social_media})
 
 
 def subscribe_request(request, author):

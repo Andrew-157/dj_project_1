@@ -18,6 +18,14 @@
             <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
         </form>
     </div>
+    {% if social_media %}
+        <div class="container py-5">
+            <h2>Follow this author on different media</h2>
+            {% for sm in social_media %}
+                <a href="{{ sm.link }}">{{ sm.social_media_title}}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
     {% if not articles %}
         <div class="container py-5">
             <h2>---Articles---</h2>
