@@ -241,7 +241,7 @@ def like_article(request, article_id):
         return render(request, 'articles/nonexistent.html')
     # when this view redirects you back to the public page of the article
     # this does not count as article was read one more time
-    # so article.times_read increases
+    # so article.times_read only increases
     # when you hit public-article url
     article.times_read -= 1
     article.save()
