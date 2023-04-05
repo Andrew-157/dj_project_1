@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
 from taggit.models import Tag
-from .forms import CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
+from .forms import SocialMediaForm, CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
 from .models import CustomUser, Article, Reaction, Comment, Subscription
 
 
@@ -50,6 +50,25 @@ def password_reset_request(request):
             messages.error(request, 'An invalid email has been entered.')
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="articles/password/password_reset.html", context={"password_reset_form": password_reset_form})
+
+
+class AddSocialMediaLink(View):
+    form_class = SocialMediaForm
+    template_name = 'articles/add_social_media.html'
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.user = request.user
+            form.save()
+            messages.info(
+                request, 'You successfully added new link to your social media')
+            return redirect('articles:personal-page')
+        return render(request, self.template_name, {'form': form})
 
 
 class RegisterUser(View):

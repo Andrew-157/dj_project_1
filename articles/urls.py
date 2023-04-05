@@ -20,12 +20,14 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
 
 personal = [
     path('personal/', views.personal_page, name='personal-page'),
-    path('personal/publish/',
+    path('personal/articles/publish/',
          views.PublishArticle.as_view(), name='publish-article'),
-    path('personal/update/<int:article_id>/',
+    path('personal/articles/<int:article_id>/update/',
          views.update_article, name='update-article'),
-    path('personal/delete/<int:article_id>/',
-         views.delete_article, name='delete-article')
+    path('personal/articles/<int:article_id>/delete/',
+         views.delete_article, name='delete-article'),
+    path('personal/social_media/add/',
+         views.AddSocialMediaLink.as_view(), name='add-social-media')
 ]
 
 public = [

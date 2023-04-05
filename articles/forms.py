@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Article, Comment
+from .models import CustomUser, Article, Comment, SocialMedia
 
 
 class CustomUserForm(UserCreationForm):
@@ -31,3 +31,10 @@ class CommentArticleForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+
+
+class SocialMediaForm(forms.ModelForm):
+
+    class Meta:
+        model = SocialMedia
+        exclude = ['user']

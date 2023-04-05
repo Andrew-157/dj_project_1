@@ -20,7 +20,7 @@ class SocialMedia(models.Model):
         (TWITTER, 'Twitter'),
         (YOUTUBE, 'Youtube')
     ]
-    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     link = models.URLField(max_length=128, unique=True)
     social_media_title = models.CharField(
         max_length=2,
