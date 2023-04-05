@@ -433,3 +433,8 @@ def subscribe_request(request, author):
         messages.success(
             request, 'You successfully unsubscribed from this author')
         return HttpResponseRedirect(reverse('articles:author-page', args=(author, )))
+
+
+def search(request):
+    search_string = request.POST['search_string']
+    return HttpResponse(search_string)
