@@ -8,7 +8,7 @@
             {% for article in articles %}
                 <h2>Title: {{ article.title }}</h2>
                 <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
-                <img src="{{ article.author.user_image.url}}" alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;">
+                <a href="{% url 'articles:author-page' article.author %}"><img src="{{ article.author.user_image.url}}" alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
                 <p>Was published by <a href="{% url 'articles:author-page' article.author %}">{{ article.author }}</a></p>  
                 {% for tag in article.tags.all %}
                     <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>

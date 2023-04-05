@@ -4,7 +4,7 @@
     <div class="container py-5">
         {% if is_owner%}
             <h1>This page is about your articles</h1>
-            <p>Follow <a href="{% url 'articles:persoanl-page' %}">this link</a> to visit your personal page</p>
+            <p>Follow <a href="{% url 'articles:personal-page' %}">this link</a> to visit your personal page</p>
         {% endif %}
         <h2><a href="{% url 'articles:author-page' author %}">{{ author }}</a></h2>
         <img src="{{ author.user_image.url }}" alt="Author's image" style="width: 10%; float: right; margin-right: 10px;">

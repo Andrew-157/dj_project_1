@@ -431,5 +431,5 @@ def subscribe_request(request, author):
     else:
         subscription.delete()
         messages.success(
-            request, 'You successfully unsubscribe from this author')
+            request, 'You successfully unsubscribed from this author')
         return HttpResponseRedirect(reverse('articles:author-page', args=(author, )))
