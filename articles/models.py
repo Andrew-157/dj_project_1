@@ -14,7 +14,7 @@ class Article(models.Model):
     image = models.ImageField(
         upload_to='articles/images/articles/', null=False)
     times_read = models.BigIntegerField(default=0)
-    tags = TaggableManager()
+    tags = TaggableManager(help_text='Use comma to separate tags')
     pub_date = models.DateField(auto_now_add=True)
 
     def __str__(self):

@@ -317,6 +317,8 @@ def comment_article(request, article_id):
             if article.author == current_user:
                 form.instance.is_author = True
             form.save()
+            messages.success(
+                request, 'You successfully left a comment on this article')
             return HttpResponseRedirect(reverse('articles:public-article', args=(article_id, )))
     form = CommentArticleForm()
     return render(request, 'articles/comment_article.html', {'form': form, 'article': article})
@@ -330,11 +332,11 @@ def find_articles_through_tag(request, tag):
         filter(tags=tag_object).order_by('-times_read').all()
     number_of_articles = len(articles)
     if number_of_articles < 0:
-        message_to_display = 'No articles were found with this tag'
+        message_to_display = f'No articles were found with this tag #{tag_object}'
     if number_of_articles == 1:
-        message_to_display = 'One article was found with this tag'
+        message_to_display = f'One article was found with this tag #{tag_object}'
     if number_of_articles > 1:
-        message_to_display = f'{number_of_articles} articles were found with this tag'
+        message_to_display = f'{number_of_articles} articles were found with this tag #{tag_object}'
     return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                              'articles': articles})
 

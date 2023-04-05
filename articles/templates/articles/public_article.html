@@ -8,7 +8,7 @@
         <p>Published: {{ article.pub_date }}</p>
         <p>Was read {{ article.times_read }} times</p>
         {% for tag in article.tags.all %}
-            <a href="">#{{ tag }}</a>
+            <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
         {% endfor %}
         <p><strong>Content:</strong></p>
         <p> {{ article.content }} </p>
@@ -35,7 +35,7 @@
               {% if comment.is_author %}
                 <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date }}</p>
               {% else %}
-                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date }}</p>
+                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a> on {{ comment.pub_date }}</p>
               {% endif %}
             </div>
           {% endfor %} 
