@@ -29,7 +29,9 @@ personal = [
     path('personal/social_media/add/',
          views.AddSocialMediaLink.as_view(), name='add-social-media'),
     path('personal/social_media/<int:social_media_id>/delete/',
-         views.delete_social_media, name='delete-social-media')
+         views.delete_social_media, name='delete-social-media'),
+    path('personal/reading_history/',
+         views.reading_history, name='reading-history')
 ]
 
 public = [
@@ -47,7 +49,6 @@ public = [
     path('public/authors/<str:author>/subscribe/',
          views.subscribe_request, name='subscribe'),
     path('public/search/', views.search_articles, name='search-articles'),
-    path('public/recommended/', views.recommend_articles, name='recommend-articles')
 ]
 
 urlpatterns = urlpatterns\

@@ -556,9 +556,23 @@ def search_articles(request):
                                                              'articles': articles})
 
 
-def recommend_articles(request):
+@login_required()
+def reading_history(request):
     current_user = request.user
-    if not current_user.is_authenticated:
-        messages.info(
-            request, "Become an authenticated user, so we can recommend you articles")
-        return redirect('articles:index')
+    user_readings = UserReadings.objects.select_related(
+        'article').filter(user=current_user).order_by('-date_read').all()
+    if len(user_readings) == 0:
+        message_to_display = 'Your reading history is empty'
+        return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
+                                                                 'user_readings': None})
+    message_to_display = 'This is your reading history'
+    return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
+                                                             'user_readings': user_readings})
+
+
+def liked_articles(request):
+    ...
+
+
+def disliked_articles(request):
+    ...

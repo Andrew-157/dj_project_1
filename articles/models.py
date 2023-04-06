@@ -36,7 +36,7 @@ class Article(models.Model):
         upload_to='articles/images/articles/', null=False)
     times_read = models.BigIntegerField(default=0)
     tags = TaggableManager(help_text='Use comma to separate tags')
-    pub_date = models.DateField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
@@ -49,7 +49,7 @@ class UserReadings(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     times_read = models.BigIntegerField(default=0)
-    date_read = models.DateField(auto_now=True)
+    date_read = models.DateTimeField(auto_now=True)
 
 
 class Subscription(models.Model):
@@ -64,7 +64,7 @@ class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     content = models.TextField(null=False)
     is_author = models.BooleanField(default=False)
-    pub_date = models.DateField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.content

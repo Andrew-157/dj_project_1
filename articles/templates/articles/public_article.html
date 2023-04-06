@@ -6,7 +6,7 @@
         <h2>Title: {{ article.title }}</h2>
         <a href="{% url 'articles:author-page' article.author %}"><img src="{{ article.author.user_image.url}}" alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
         <p>Was published by <a href="{% url 'articles:author-page' article.author %}">{{ article.author }}</a></p>
-        <p>Published: {{ article.pub_date }}</p>
+        <p>Published: {{ article.pub_date.date }}</p>
         <p>Was read {{ article.times_read }} times</p>
         {% for tag in article.tags.all %}
             <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
@@ -34,9 +34,9 @@
               <p>Comment:</p>
               <p>{{ comment.content }}</p>
               {% if comment.is_author %}
-                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date }}</p>
+                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a>(author) on {{ comment.pub_date.date }}</p>
               {% else %}
-                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a> on {{ comment.pub_date }}</p>
+                <p>Left by <a href="{% url 'articles:author-page' comment.commentator %}">{{ comment.commentator }}</a> on {{ comment.pub_date.date }}</p>
               {% endif %}
             </div>
           {% endfor %} 

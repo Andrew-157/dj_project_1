@@ -45,7 +45,7 @@
                     <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
                 {% endfor %}
                 <p>Was read <strong>{{ article.times_read }}</strong> times</p>
-                <p>Was published <strong>{{ article.pub_date }}</strong></p>
+                <p>Was published <strong>{{ article.pub_date.date }}</strong></p>
                 <form action="{% url 'articles:public-article' article.id %}">
                     {% csrf_token %}
                     <button class="btn btn-primary" type="submit">Read</button>
