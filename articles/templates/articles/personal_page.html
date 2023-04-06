@@ -11,6 +11,9 @@
         {% endif %}
     </div>
     <div class="container py-5">
+        <a href="{% url 'articles:reading-history' %}">See your reading history</a>
+    </div>
+    <div class="container py-5">
         {% if not social_media %}
             <a href="{% url 'articles:add-social-media' %}">Let users follow you on different social media</a>
         {% else %}

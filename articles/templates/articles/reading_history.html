@@ -4,6 +4,15 @@
 
     <div class="container py-5">
         <h2>{{ message_to_display }}</h2>
+        {% if not is_empty %}
+            <p>By clicking this button you will clear your reactions and comments from articles you read, and 
+                data that you read those articles will also be cleared. 
+            </p>
+            <form action="{% url 'articles:clear-history' %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Clear history</button>
+            </form>
+        {% endif %}
         {% if user_readings %}
             <h2>---Articles---</h2>
             {% for user_reading in user_readings %}
@@ -20,7 +29,8 @@
                     {% csrf_token %}
                     <button class="btn btn-primary" type="submit">Read</button>
                 </form>
-                <p>You read this article on <strong>{{ user_reading.date_read.date }}</strong></p>
+                <p>You read this article on <strong>{{user_reading.date_read.date}}</strong> 
+                    at <strong>{{user_reading.date_read.time}}</strong></p>
             {% endfor %}
         {% endif %}
     </div>

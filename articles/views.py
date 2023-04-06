@@ -559,15 +559,41 @@ def search_articles(request):
 @login_required()
 def reading_history(request):
     current_user = request.user
+    is_empty = False
     user_readings = UserReadings.objects.select_related(
         'article').filter(user=current_user).order_by('-date_read').all()
     if len(user_readings) == 0:
+        is_empty = True
         message_to_display = 'Your reading history is empty'
         return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
-                                                                 'user_readings': None})
+                                                                 'user_readings': None,
+                                                                 'is_empty': is_empty})
     message_to_display = 'This is your reading history'
     return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
-                                                             'user_readings': user_readings})
+                                                             'user_readings': user_readings,
+                                                             'is_empty': is_empty})
+
+
+@login_required()
+def clear_reading_history(request):
+    current_user = request.user
+    user_readings = UserReadings.objects.\
+        select_related('article').filter(user=current_user).all()
+    if len(user_readings) == 0:
+        messages.info(request, 'Your reading history is already empty')
+        return redirect('articles:reading-history')
+    reactions_by_user = Reaction.objects.filter(
+        reaction_owner=current_user).delete()
+    comments_by_user = Comment.objects.filter(
+        commentator=current_user
+    ).delete()
+    for user_reading in user_readings:
+        article = user_reading.article
+        article.times_read -= user_reading.times_read
+        article.save()
+    user_readings.delete()
+    messages.success(request, 'You successfully cleared your reading history')
+    return redirect('articles:reading-history')
 
 
 def liked_articles(request):

@@ -31,7 +31,9 @@ personal = [
     path('personal/social_media/<int:social_media_id>/delete/',
          views.delete_social_media, name='delete-social-media'),
     path('personal/reading_history/',
-         views.reading_history, name='reading-history')
+         views.reading_history, name='reading-history'),
+    path('personal/reading_history/clear/',
+         views.clear_reading_history, name='clear-history')
 ]
 
 public = [
