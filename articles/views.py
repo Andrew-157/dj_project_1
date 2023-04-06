@@ -482,6 +482,10 @@ def subscribe_request(request, author):
 
 def search_articles(request):
     search_string = request.POST['search_string']
+    if not search_string:
+        return render(request, 'articles/nonexistent.html')
+    if len(search_string) == 1 and search_string[0] == '#':
+        return render(request, 'articles/nonexistent.html')
     if search_string[0] == '#':
         tag = search_string[1:]
         return HttpResponseRedirect(reverse('articles:tag-article', args=(tag, )))
@@ -505,3 +509,11 @@ def search_articles(request):
 
     return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                              'articles': articles})
+
+
+def recommend_articles(request):
+    current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(
+            request, "Become an authenticated user, so we can recommend you articles")
+        return redirect('articles:index')

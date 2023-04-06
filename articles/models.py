@@ -42,6 +42,13 @@ class Article(models.Model):
         return self.title
 
 
+class UserReadings(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    times_read = models.BigIntegerField(default=0)
+    date_read = models.DateField(auto_now=True)
+
+
 class Subscription(models.Model):
     subscriber = models.ForeignKey(
         CustomUser, related_name='subscriber', on_delete=models.CASCADE)

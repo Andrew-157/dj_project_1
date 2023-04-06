@@ -46,7 +46,8 @@ public = [
     path('public/authors/<str:author>/', views.author_page, name='author-page'),
     path('public/authors/<str:author>/subscribe/',
          views.subscribe_request, name='subscribe'),
-    path('public/search/', views.search_articles, name='search-articles')
+    path('public/search/', views.search_articles, name='search-articles'),
+    path('public/recommended/', views.recommend_articles, name='recommend-articles')
 ]
 
 urlpatterns = urlpatterns\
