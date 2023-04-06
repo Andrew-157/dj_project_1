@@ -31,6 +31,10 @@
                 </form>
                 <p>You read this article on <strong>{{user_reading.date_read.date}}</strong> 
                     at <strong>{{user_reading.date_read.time}}</strong></p>
+                <form action="{% url 'articles:delete-reading' user_reading.article.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit">Delete article from reading history</button>
+                </form>
             {% endfor %}
         {% endif %}
     </div>

@@ -33,7 +33,9 @@ personal = [
     path('personal/reading_history/',
          views.reading_history, name='reading-history'),
     path('personal/reading_history/clear/',
-         views.clear_reading_history, name='clear-history')
+         views.clear_reading_history, name='clear-history'),
+    path('personal/reading_history/<int:article_id>/delete/',
+         views.delete_reading, name='delete-reading')
 ]
 
 public = [

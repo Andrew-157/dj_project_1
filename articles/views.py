@@ -586,7 +586,7 @@ def clear_reading_history(request):
         reaction_owner=current_user).delete()
     comments_by_user = Comment.objects.filter(
         commentator=current_user
-    ).delete()
+    ).all().delete()
     for user_reading in user_readings:
         article = user_reading.article
         article.times_read -= user_reading.times_read
@@ -596,9 +596,29 @@ def clear_reading_history(request):
     return redirect('articles:reading-history')
 
 
-def liked_articles(request):
-    ...
-
-
-def disliked_articles(request):
-    ...
+def delete_reading(request, article_id):
+    current_user = request.user
+    article = Article.objects.filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    user_reading = UserReadings.objects.\
+        select_related('article').filter(Q(user=current_user)
+                                         & Q(article=article)).first()
+    if not user_reading:
+        return render(request, 'articles/nonexistent.html')
+    article.times_read -= user_reading.times_read
+    article.save()
+    user_reaction = Reaction.objects.\
+        filter(Q(article=article)
+               & Q(reaction_owner=current_user)).first()
+    if user_reaction:
+        user_reaction.delete()
+    user_comments = Comment.objects.\
+        filter(
+            Q(article=article)
+            & Q(commentator=current_user)
+        ).all().delete()
+    print(user_comments)
+    user_reading.delete()
+    messages.success(request, 'Article was deleted from your reading history')
+    return redirect('articles:reading-history')
