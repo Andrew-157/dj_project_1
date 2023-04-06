@@ -43,6 +43,9 @@ class Article(models.Model):
 
 
 class UserReadings(models.Model):
+    # this view helps us track how many times user read a particular article
+    # so this can be used to recommend articles, to show their reading history
+    # and delete their reading history of a particular article if they want
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     times_read = models.BigIntegerField(default=0)

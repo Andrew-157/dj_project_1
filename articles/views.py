@@ -2,10 +2,10 @@ from django.db.models import Sum
 from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import BadHeaderError, send_mail
+from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import PasswordResetForm
@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from taggit.models import Tag
 from .forms import SocialMediaForm, CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
-from .models import CustomUser, Article, Reaction, Comment, Subscription, SocialMedia
+from .models import CustomUser, Article, Reaction, Comment, Subscription, SocialMedia, UserReadings
 
 
 def password_reset_request(request):
@@ -241,6 +241,18 @@ def public_article(request, article_id):
     if not article:
         return render(request, 'articles/nonexistent.html')
     if current_user.is_authenticated:
+        user_readings = UserReadings.objects.filter(Q(user=current_user) &
+                                                    Q(article=article)).first()
+        if not user_readings:
+            user_readings = UserReadings(
+                user=current_user,
+                article=article,
+                times_read=1
+            )
+            user_readings.save()
+        else:
+            user_readings.times_read += 1
+            user_readings.save()
         article.times_read += 1
         article.save()
         user_reaction = Reaction.objects.filter(
@@ -271,20 +283,35 @@ def public_article(request, article_id):
 def like_article(request, article_id):
     current_user = request.user
     if not current_user.is_authenticated:
-        messages.info(request, 'To leave a reaction, please, sign in')
+        # here login_required decorator is not applied
+        # because we want user to return to the public page of the article
+        # with message that they need to be authenticated to leave a reaction
+        messages.info(
+            request, 'To leave a reaction, please, become an authenticated user')
         return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
     article = Article.objects.filter(pk=article_id).first()
     if not article:
         return render(request, 'articles/nonexistent.html')
+    user_readings = UserReadings.objects.filter(Q(user=current_user) &
+                                                Q(article=article)).first()
+    if not user_readings:
+        # this if statement ensures that view works properly as
+        # we check if user read an article and does not try to hit
+        # url for likes directly
+        messages.warning(
+            request, "Do not try to leave like without reading an article")
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    else:
+        # when this view redirects you back to the public page of the article
+        # this does not count as user read
+        user_readings.times_read -= 1
+        user_readings.save()
     # when this view redirects you back to the public page of the article
     # this does not count as article was read one more time
     # so article.times_read only increases
     # when you hit public-article url
     article.times_read -= 1
     article.save()
-    # here login_required decorator is not applied
-    # because we want user to return to the public page of the article
-    # with message that they need to be authenticated to leave a reaction
     reaction = Reaction.objects.filter(
         Q(article=article)
         &
@@ -314,6 +341,15 @@ def dislike_article(request, article_id):
     article = Article.objects.filter(pk=article_id).first()
     if not article:
         return render(request, 'articles/nonexistent.html')
+    user_readings = UserReadings.objects.filter(Q(user=current_user) &
+                                                Q(article=article)).first()
+    if not user_readings:
+        messages.warning(
+            request, "Do not try to leave dislike without reading an article")
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+    else:
+        user_readings.times_read -= 1
+        user_readings.save()
     article.times_read -= 1
     article.save()
     reaction = Reaction.objects.filter(
@@ -336,20 +372,29 @@ def dislike_article(request, article_id):
 
 
 def comment_article(request, article_id):
-    # here login_required decorator is not applied
-    # because we want user to return to the public page of the article
-    # with message that they need to be authenticated to leave a comment
     current_user = request.user
     if not current_user.is_authenticated:
-        messages.info(request, 'To leave a comment, please, sign in')
+        # here login_required decorator is not applied
+        # because we want user to return to the public page of the article
+        # with message that they need to be authenticated to leave a comment
+        messages.info(
+            request, 'To leave a comment, please, become an authenticated user')
         return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
     article = Article.objects.filter(pk=article_id).\
         select_related('author').first()
     if not article:
         return render(request, 'articles/nonexistent.html')
+    user_readings = UserReadings.objects.filter(Q(user=current_user) &
+                                                Q(article=article)).first()
+    if not user_readings:
+        messages.warning(
+            request, "Do not try to leave comment without reading an article")
+        return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
     if request.method == 'POST':
         article.times_read -= 1
         article.save()
+        user_readings.times_read -= 1
+        user_readings.save()
         form = CommentArticleForm(request.POST)
         if form.is_valid():
             form.instance.commentator = current_user
