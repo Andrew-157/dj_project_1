@@ -618,7 +618,6 @@ def delete_reading(request, article_id):
             Q(article=article)
             & Q(commentator=current_user)
         ).all().delete()
-    print(user_comments)
     user_reading.delete()
     messages.success(request, 'Article was deleted from your reading history')
     return redirect('articles:reading-history')
