@@ -562,13 +562,13 @@ def reading_history(request):
     is_empty = False
     user_readings = UserReadings.objects.select_related(
         'article').filter(user=current_user).order_by('-date_read').all()
-    if len(user_readings) == 0:
+    number_of_readings = len(user_readings)
+    if number_of_readings == 0:
         is_empty = True
         message_to_display = 'Your reading history is empty'
-        return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
-                                                                 'user_readings': None,
-                                                                 'is_empty': is_empty})
-    message_to_display = 'This is your reading history'
+    else:
+        message_to_display = 'This is your reading history'
+
     return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
                                                              'user_readings': user_readings,
                                                              'is_empty': is_empty})
@@ -596,6 +596,7 @@ def clear_reading_history(request):
     return redirect('articles:reading-history')
 
 
+@login_required()
 def delete_reading(request, article_id):
     current_user = request.user
     article = Article.objects.filter(pk=article_id).first()
@@ -621,3 +622,47 @@ def delete_reading(request, article_id):
     user_reading.delete()
     messages.success(request, 'Article was deleted from your reading history')
     return redirect('articles:reading-history')
+
+
+@login_required()
+def liked_articles(request):
+    current_user = request.user
+    reactions = Reaction.objects.select_related('article').filter(Q(reaction_owner=current_user) &
+                                                                  Q(value=1)).all()
+    number_of_reactions = len(reactions)
+    if number_of_reactions == 0:
+        message_to_display = 'You have not liked any articles yet'
+        articles = None
+    else:
+        if number_of_reactions == 1:
+            message_to_display = 'You totally liked 1 article'
+        else:
+            message_to_display = f'You totally liked {number_of_reactions} articles'
+        articles_ids = [reaction.article.id for reaction in reactions]
+        articles = Article.objects.select_related('author').\
+            prefetch_related('tags').\
+            filter(pk__in=articles_ids).all()
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})
+
+
+def disliked_articles(request):
+    current_user = request.user
+    reactions = Reaction.objects.select_related('article').filter(Q(reaction_owner=current_user) &
+                                                                  Q(value=-1)).all()
+    number_of_reactions = len(reactions)
+    if number_of_reactions == 0:
+        message_to_display = 'You have not disliked any articles yet'
+        articles = None
+    else:
+        if number_of_reactions == 1:
+            message_to_display = 'You totally disliked 1 article'
+        else:
+            message_to_display = f'You totally disliked {number_of_reactions} articles'
+        articles_ids = [reaction.article.id for reaction in reactions]
+        articles = Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(pk__in=articles_ids).all()
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})

@@ -4,7 +4,7 @@
 
     <div class="container py-5">
         <h2>{{ message_to_display }}</h2>
-        {% if not is_empty %}
+        {% if user_readings %}
             <p>By clicking this button you will clear your reactions and comments from articles you read, and 
                 data that you read those articles will also be cleared. 
             </p>
@@ -12,29 +12,19 @@
                 {% csrf_token %}
                 <button class="btn btn-primary" type="submit">Clear history</button>
             </form>
-        {% endif %}
-        {% if user_readings %}
             <h2>---Articles---</h2>
             {% for user_reading in user_readings %}
                 <h2>Title: {{ user_reading.article.title }}</h2>
-                <img src="{{ user_reading.article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
-                <a href="{% url 'articles:author-page' user_reading.article.author %}"><img src="{{ user_reading.article.author.user_image.url}}" alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-                <p>Was published by <a href="{% url 'articles:author-page' user_reading.article.author %}">{{ user_reading.article.author }}</a></p>  
-                {% for tag in user_reading.article.tags.all %}
-                    <a href="{% url 'articles:tag-article' tag %}">#{{ tag }}</a>
-                {% endfor %}
-                <p>Was read <strong>{{ user_reading.article.times_read }}</strong> times</p>
-                <p>Was published <strong>{{ user_reading.article.pub_date.date }}</strong></p>
                 <form action="{% url 'articles:public-article' user_reading.article.id %}">
                     {% csrf_token %}
                     <button class="btn btn-primary" type="submit">Read</button>
                 </form>
-                <p>You read this article on <strong>{{user_reading.date_read.date}}</strong> 
-                    at <strong>{{user_reading.date_read.time}}</strong></p>
                 <form action="{% url 'articles:delete-reading' user_reading.article.id %}">
                     {% csrf_token %}
                     <button class="btn btn-primary" type="submit">Delete article from reading history</button>
                 </form>
+                <p>You read this article on <strong>{{user_reading.date_read.date}}</strong> 
+                    at <strong>{{user_reading.date_read.time}}</strong></p>
             {% endfor %}
         {% endif %}
     </div>
