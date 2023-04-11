@@ -1,18 +1,18 @@
-from django.db.models import Sum
+from datetime import timedelta
 from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import BadHeaderError, send_mail
-from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import PasswordResetForm
-from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes
+from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
@@ -736,3 +736,52 @@ def favorite_articles(request):
             filter(pk__in=articles_ids).all()
         return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                                  'articles': articles})
+
+
+def recommended_articles(request):
+    current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(
+            request, 'We cannot recommend you any articles while you are not authenticated')
+        return redirect('articles:index')
+    subscriptions = Subscription.objects.\
+        select_related('subscribe_to').filter(subscriber=current_user).all()
+    subscribed_to_authors = [
+        subscription.subscribe_to for subscription in subscriptions]
+    articles_in_subscriptions = Article.objects.prefetch_related('tags').filter(
+        author__username__in=subscribed_to_authors).all()
+    tags_in_subscriptions = [article.tags.all()
+                             for article in articles_in_subscriptions]
+    tag_objects = []
+    for tag_list in tags_in_subscriptions:
+        for tag in tag_list:
+            if tag in tag_objects:
+                continue
+            else:
+                tag_objects.append(tag)
+    article_objects = list(Article.objects.select_related('author').
+                           prefetch_related('tags').
+                           filter(tags__in=tag_objects).order_by('-pub_date').all())
+    articles = []
+    for article in article_objects:
+        if article in articles:
+            continue
+        else:
+            articles.append(article)
+    message_to_display = 'Here are the articles recommended for you'
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})
+
+
+def popular_articles(request):
+    past_date = timezone.now() - timedelta(days=7)
+    future_date = timezone.now() + timedelta(days=7)
+    articles = Article.objects.select_related('author').\
+        filter(
+        Q(pub_date__gt=past_date) &
+        Q(pub_date__lt=future_date) &
+        Q(times_read__gt=50)
+    ).order_by('-times_read').all()[:10]
+    message_to_display = 'You are seeing the most popular articles in recent time'
+    return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                             'articles': articles})

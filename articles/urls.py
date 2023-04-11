@@ -40,9 +40,12 @@ personal = [
     path('personal/articles/disliked/',
          views.disliked_articles, name='disliked-articles'),
     path('personal/subscriptions/', views.subscriptions, name='subscriptions'),
-    path('personal/articles/favorites', views.favorite_articles, name='favorites'),
+    path('personal/articles/favorites',
+         views.favorite_articles, name='favorites'),
     path('personal/articles/favorites/<int:article_id>/',
-         views.favorites_request, name='favorites-manage')
+         views.favorites_request, name='favorites-manage'),
+    path('personal/articles/recommended/',
+         views.recommended_articles, name='recommended-articles')
 ]
 
 public = [
@@ -60,6 +63,8 @@ public = [
     path('public/authors/<str:author>/subscribe/',
          views.subscribe_request, name='subscribe'),
     path('public/search/', views.search_articles, name='search-articles'),
+    path('public/articles/popular/',
+         views.popular_articles, name='popular-articles')
 ]
 
 urlpatterns = urlpatterns\
