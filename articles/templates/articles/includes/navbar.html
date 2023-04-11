@@ -6,13 +6,13 @@
   <div class="collapse navbar-collapse" id="navbarText">
     <ul class="navbar-nav mr-auto">
       {% if user.is_authenticated %}
-      
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'articles:logout' %}">Logout</a>
-      </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'articles:personal-page' %}">{{ user }}</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'articles:logout' %}">Logout</a>
+      </li>
+      
       <li class="nav-item">
         <a class="nav-link" href="{% url 'articles:change-user' %}">Change your profile</a>
       </li>
