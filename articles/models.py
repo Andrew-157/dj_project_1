@@ -74,3 +74,8 @@ class Reaction(models.Model):
     value = models.SmallIntegerField()
     reaction_owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+
+class Favorite(models.Model):
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
