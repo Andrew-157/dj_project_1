@@ -40,8 +40,9 @@ personal = [
     path('personal/articles/disliked/',
          views.disliked_articles, name='disliked-articles'),
     path('personal/subscriptions/', views.subscriptions, name='subscriptions'),
-    path('personal/articles/<int:article_id>/favorites',
-         views.favorites_request, name='favorites')
+    path('personal/articles/favorites', views.favorite_articles, name='favorites'),
+    path('personal/articles/favorites/<int:article_id>/',
+         views.favorites_request, name='favorites-manage')
 ]
 
 public = [

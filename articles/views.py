@@ -713,3 +713,26 @@ def favorites_request(request, article_id):
             request, 'You successfully deleted this article from your "Favorites"')
 
     return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))
+
+
+@login_required()
+def favorite_articles(request):
+    current_user = request.user
+    favorites = Favorite.objects.select_related(
+        'article').filter(owner=current_user).all()
+    number_of_favorites = len(favorites)
+    if number_of_favorites == 0:
+        message_to_display = 'You have no favorite article'
+        articles = None
+    else:
+        if number_of_favorites == 1:
+            message_to_display = 'You have 1 favorite article'
+        else:
+            message_to_display = f'You have {number_of_favorites} favorite articles'
+        articles_ids = [favorite.article.id for favorite in favorites]
+        articles = Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(pk__in=articles_ids).all()
+        return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
+                                                                 'articles': articles})

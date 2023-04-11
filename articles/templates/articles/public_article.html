@@ -3,7 +3,7 @@
 {% block content%}
     <div class="container py-5">
         <img src="{{ article.image.url }}" alt="Article image" style="width: 30%; float: right; margin-right: 30px;">
-        <form action="{% url 'articles:favorites' article.id %}">
+        <form action="{% url 'articles:favorites-manage' article.id %}">
           {% csrf_token %}
           <button class="btn btn-primary" type="submit">{{ in_favorites }}</button>
         </form>
