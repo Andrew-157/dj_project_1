@@ -161,11 +161,12 @@ MESSAGE_TAGS = {
 
 LOGIN_URL = reverse_lazy('articles:become-user')
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 535
-EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
-EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+# EMAIL_PORT = 25
+# EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
+# EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
 
 TAGGIT_CASE_INSENSITIVE = True

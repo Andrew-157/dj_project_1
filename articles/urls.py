@@ -18,7 +18,6 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
                            name='change-user'),
                       path('password_reset/', views.password_reset_request,
                            name='password-reset'),
-                      path('send_email/', views.mail)
                       ]
 
 personal = [
