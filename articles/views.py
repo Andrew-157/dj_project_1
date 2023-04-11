@@ -646,6 +646,7 @@ def liked_articles(request):
                                                              'articles': articles})
 
 
+@login_required()
 def disliked_articles(request):
     current_user = request.user
     reactions = Reaction.objects.select_related('article').filter(Q(reaction_owner=current_user) &
