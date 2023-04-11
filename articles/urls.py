@@ -16,7 +16,9 @@ user_manipulations = [path('register/', views.RegisterUser.as_view(), name='regi
                       path('logout/', views.logout_request, name='logout'),
                       path('change_user/', views.ChangeUser.as_view(),
                            name='change-user'),
-                      #   path('password_reset/', views.password_reset_request, name='password-reset'),
+                      path('password_reset/', views.password_reset_request,
+                           name='password-reset'),
+                      path('send_email/', views.mail)
                       ]
 
 personal = [
