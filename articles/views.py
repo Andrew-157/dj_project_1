@@ -483,6 +483,8 @@ def personal_page(request):
     number_of_articles = len(articles)
     subscribers = Subscription.objects.filter(
         subscribe_to=current_user).count()
+    subscriptions = Subscription.objects.\
+        filter(subscriber=current_user).count()
     social_media = SocialMedia.objects.\
         filter(user=current_user).all()
 
@@ -491,6 +493,7 @@ def personal_page(request):
                                                            'total_readings': total_readings,
                                                            'number_of_articles': number_of_articles,
                                                            'subscribers': subscribers,
+                                                           'subscriptions': subscriptions,
                                                            'social_media': social_media})
 
 
@@ -559,19 +562,16 @@ def search_articles(request):
 @login_required()
 def reading_history(request):
     current_user = request.user
-    is_empty = False
     user_readings = UserReadings.objects.select_related(
         'article').filter(user=current_user).order_by('-date_read').all()
     number_of_readings = len(user_readings)
     if number_of_readings == 0:
-        is_empty = True
         message_to_display = 'Your reading history is empty'
     else:
         message_to_display = 'This is your reading history'
 
     return render(request, 'articles/reading_history.html', {'message_to_display': message_to_display,
-                                                             'user_readings': user_readings,
-                                                             'is_empty': is_empty})
+                                                             'user_readings': user_readings})
 
 
 @login_required()
@@ -667,3 +667,12 @@ def disliked_articles(request):
             filter(pk__in=articles_ids).all()
     return render(request, 'articles/public_articles.html', {'message_to_display': message_to_display,
                                                              'articles': articles})
+
+
+@login_required()
+def subscriptions(request):
+    current_user = request.user
+    subscriptions = Subscription.objects.\
+        select_related('subscribe_to').filter(subscriber=current_user).all()
+    authors = [subscription.subscribe_to for subscription in subscriptions]
+    return render(request, 'articles/subscriptions.html', {'authors': authors})

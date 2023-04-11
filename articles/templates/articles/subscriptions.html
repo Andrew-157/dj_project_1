@@ -1,0 +1,14 @@
+{% extends "articles/header.html" %}
+
+{% block content%}
+    <div class="container py-5">
+        {% if authors %}
+            <h2>Authors you are subscribed to</h2>
+            {% for author in authors %}
+                <a href="{% url 'articles:author-page' author %}">{{ author }}</a><br>
+            {% endfor %}
+        {% else %}
+            <h2>No authors you are subscribed to</h2>
+        {% endif %}
+    </div>
+{% endblock %}

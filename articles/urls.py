@@ -38,7 +38,8 @@ personal = [
          views.delete_reading, name='delete-reading'),
     path('personal/articles/liked/', views.liked_articles, name='liked-articles'),
     path('personal/articles/disliked/',
-         views.disliked_articles, name='disliked-articles')
+         views.disliked_articles, name='disliked-articles'),
+    path('personal/subscriptions/', views.subscriptions, name='subscriptions')
 ]
 
 public = [
