@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from taggit.models import Tag
 from .forms import SocialMediaForm, CustomUserForm, ChangeCustomUserForm, PublishArticleForm, CommentArticleForm
-from .models import CustomUser, Article, Reaction, Comment, Subscription, SocialMedia, UserReadings
+from .models import CustomUser, Article, Reaction, Comment, Subscription, SocialMedia, UserReadings, Favorite
 
 
 def password_reset_request(request):
@@ -235,6 +235,7 @@ def public_article(request, article_id):
     likes = 0
     dislikes = 0
     comments = None
+    in_favorites = 'Add to "Favorites" '
     article = Article.objects.select_related('author').\
         prefetch_related('tags').\
         filter(pk=article_id).first()
@@ -265,6 +266,12 @@ def public_article(request, article_id):
                 user_reaction_message = 'You disliked this article'
             if user_reaction.value == 1:
                 user_reaction_message = 'You liked this article'
+        favorite = Favorite.objects.filter(
+            Q(owner=current_user) &
+            Q(article=article)
+        ).first()
+        if favorite:
+            in_favorites = 'Delete from "Favorites" '
     article_reactions = Reaction.objects.filter(article=article).all()
     if article_reactions:
         likes = article_reactions.filter(value=1).count()
@@ -277,7 +284,8 @@ def public_article(request, article_id):
                                                             'user_reaction_message': user_reaction_message,
                                                             'likes': likes,
                                                             'dislikes': dislikes,
-                                                            'comments': comments})
+                                                            'comments': comments,
+                                                            'in_favorites': in_favorites})
 
 
 def like_article(request, article_id):
@@ -676,3 +684,32 @@ def subscriptions(request):
         select_related('subscribe_to').filter(subscriber=current_user).all()
     authors = [subscription.subscribe_to for subscription in subscriptions]
     return render(request, 'articles/subscriptions.html', {'authors': authors})
+
+
+def favorites_request(request, article_id):
+    current_user = request.user
+    if not current_user.is_authenticated:
+        messages.info(
+            request, 'You cannot add an article to "Favorites" while you are not authenticated')
+        return HttpResponseRedirect(reverse('articles:public-article', args=article_id,))
+    article = Article.objects.filter(pk=article_id).first()
+    if not article:
+        return render(request, 'articles/nonexistent.html')
+    favorite = Favorite.objects.filter(
+        Q(owner=current_user) &
+        Q(article=article)
+    ).first()
+    if not favorite:
+        favorite = Favorite(
+            owner=current_user,
+            article=article
+        )
+        favorite.save()
+        messages.success(
+            request, 'You successfully added this article to your "Favorites"')
+    else:
+        favorite.delete()
+        messages.success(
+            request, 'You successfully deleted this article from your "Favorites"')
+
+    return HttpResponseRedirect(reverse('articles:public-article', args=(article_id,)))

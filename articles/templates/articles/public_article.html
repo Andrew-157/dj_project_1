@@ -3,6 +3,10 @@
 {% block content%}
     <div class="container py-5">
         <img src="{{ article.image.url }}" alt="Article image" style="width: 30%; float: right; margin-right: 30px;">
+        <form action="{% url 'articles:favorites' article.id %}">
+          {% csrf_token %}
+          <button class="btn btn-primary" type="submit">{{ in_favorites }}</button>
+        </form>
         <h2>Title: {{ article.title }}</h2>
         <a href="{% url 'articles:author-page' article.author %}"><img src="{{ article.author.user_image.url}}" alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
         <p>Was published by <a href="{% url 'articles:author-page' article.author %}">{{ article.author }}</a></p>
