@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous"
+      />
+    <title>Become User</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'core:index' %}">Articlee</a>
+    </nav>
+    <div class="container py-5"> 
+        <h1>Oops, you cannot visit this page,while you are not authenticated</h1>
+        <p>Visit one of the following links:</p>
+        <a href="{% url 'users:login' %}">Login</a><br>
+        <a href="{% url 'users:register' %}">Register</a><br>
+        <a href="{% url 'users:password-reset' %}">Forgot password?</a>
+    </div>
+</body>
+</html>

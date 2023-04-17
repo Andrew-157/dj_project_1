@@ -1,0 +1,10 @@
+{% extends "core/header.html" %}
+
+{% block content%}
+    
+    <div class="container py-5">
+        <h1>Welcome to the Articlee</h1>
+        <a href="{% url 'personal:recommended-articles' %}">See articles recommended for you</a><br>
+        <a href="{% url 'public:popular-articles' %}">See the most popular articles for the recent time</a>
+    </div>
+{% endblock %}

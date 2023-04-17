@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
     'taggit',
     'django_cleanup.apps.CleanupConfig',
-    'articles'
+    'core',
+    'users',
+    'personal',
+    'public'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
